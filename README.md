@@ -4,6 +4,14 @@
 
 [![NPM](https://img.shields.io/npm/v/rect-ui-kit.svg)](https://www.npmjs.com/package/rect-ui-kit) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
+## Description
+This component is a unique calendar component based on semantic and react.
+
+## Screenshot
+<img src="screenshot.png"
+     alt="How it looks"
+     style="float: left; margin-right: 10px;" />
+
 ## Install
 
 ```bash
