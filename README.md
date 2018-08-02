@@ -5,7 +5,12 @@
 [![NPM](https://img.shields.io/npm/v/rect-ui-kit.svg)](https://www.npmjs.com/package/rect-ui-kit) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Description
-This component is a unique calendar component based on semantic and react.
+This component is a unique calendar component based on semantic and react. This doesn't install the semantic and other dependencies. Hence please install 
+  "prop-types": "^15.6.2",
+  "react": "^16.4.1",
+  "react-dom": "^16.4.1",
+  "semantic-ui-css": "^2.3.3",
+  "semantic-ui-react": "^0.82.1",
 
 ## Screenshot
 <img src="screenshot.png"
