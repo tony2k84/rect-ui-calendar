@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {RectDatePicker} from 'rect-ui-kit';
+import {RectDatePicker} from 'rect-ui-calendar';
 
 export default class App extends Component {
   constructor(props){
