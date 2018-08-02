@@ -1,0 +1,47 @@
+.defaultDay{
+    padding: 15px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    color: #313131;
+}
+
+.otherDay{
+    padding: 15px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    color: #B3B3B3;
+}
+
+.defaultDay:hover, .otherDay:hover{
+    background-color: blue;
+    color: #ffffff; 
+}
+
+.selectedDay{
+    padding: 15px;
+    background-color: blue;
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.selectedYear{
+    color: blue;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.defaultYear{
+    color: #B3B3B3;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+    font-size: 13px;
+    cursor: pointer;
+}
