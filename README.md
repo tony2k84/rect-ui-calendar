@@ -53,4 +53,4 @@ export default class App extends Component {
 
 ## License
 
-MIT © [tony2k84](https://github.com/tony2k84)
+MIT © [tony2k84](https://github.com/tony2k84/rect-ui-calendar)
