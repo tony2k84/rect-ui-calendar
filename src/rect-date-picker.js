@@ -178,8 +178,7 @@ export default class RectDatePicker extends Component {
         <Input icon='calendar' iconPosition='left' placeholder='DD/MM/YYYY' onClick={this.open} value={selectedDateString} />
         <Modal
           open={open}
-          closeOnEscape={false}
-          closeOnDimmerClick={false}
+          closeIcon={true}
           onClose={this.close}
           size='small'
         >
