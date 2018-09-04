@@ -45,3 +45,40 @@
     font-size: 13px;
     cursor: pointer;
 }
+
+.defaultTime{
+    font-size: 12px;
+    color: #B3B3B3;
+    padding: 3px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.selectedTime{
+    font-size: 12px;
+    padding: 3px;
+    font-weight: bold;
+    background-color: blue;
+    color: #ffffff;
+}
+
+.defaultAMPM{
+    font-size: 12px;
+    color: #B3B3B3;
+    padding: 3px;
+    margin: 3px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #FFFFFF;
+}
+
+.selectedAMPM{
+    font-size: 12px;
+    color: #B3B3B3;
+    padding: 3px;
+    margin: 3px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid blue;
+    border-radius: 2px;
+}

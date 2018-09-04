@@ -16,6 +16,11 @@ export default class RectDatePicker extends Component {
       days: [],
       startYear: props.startYear ? props.startYear : today.getFullYear() - 5,
       years: [],
+      hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 59],
+      selectedHour: 0,
+      selectedMinutes: 0,
+      ampm: 'AM'
     }
 
   }
@@ -61,9 +66,10 @@ export default class RectDatePicker extends Component {
       years.push(start);
       start++;
     }
+
     this.setState({
       days: days,
-      years: years
+      years: years,
     });
 
   }
@@ -85,10 +91,19 @@ export default class RectDatePicker extends Component {
   }
 
   selectDate = (selectedDate) => {
-
+    const {ampm, selectedHour, selectedMinutes} = this.state;
+    selectedDate.setHours(ampm==='PM'?selectedHour+12:selectedHour);
+    selectedDate.setMinutes(selectedMinutes);
+    selectedDate.setSeconds(0);
     this.setState({
       selected: selectedDate,
-      selectedDateString: selectedDate.getDate().toString().padStart(2, 0) + "/" + (selectedDate.getMonth() + 1).toString().padStart(2, 0) + "/" + selectedDate.getFullYear()
+      selectedDateString: selectedDate.getDate().toString().padStart(2, 0) 
+                          + "/" 
+                          + (selectedDate.getMonth() + 1).toString().padStart(2, 0) 
+                          + "/" + selectedDate.getFullYear()
+                          + " " + selectedDate.getHours().toString().padStart(2, 0) 
+                          + ":" + selectedDate.getMinutes().toString().padStart(2, 0) 
+                          + ":" + selectedDate.getSeconds().toString().padStart(2, 0) 
     }, () => { this.updateData(); this.close(); this.props.onSelect(selectedDate) });
   }
 
@@ -144,6 +159,24 @@ export default class RectDatePicker extends Component {
     )
   }
 
+  renderHours() {
+    const { hours, selectedHour } = this.state;
+    return hours.map((item, index) =>
+      <div key={item}
+        onClick={() => this.setState({ selectedHour: item })}
+        className={selectedHour === item ? styles.selectedTime : styles.defaultTime}>{item.toString().padStart(2, '0')}</div>
+    )
+  }
+
+  renderMinutes() {
+    const { minutes, selectedMinutes } = this.state;
+    return minutes.map((item, index) =>
+      <div key={item}
+        onClick={() => this.setState({ selectedMinutes: item })}
+        className={selectedMinutes === item ? styles.selectedTime : styles.defaultTime}>{item.toString().padStart(2, '0')}</div>
+    )
+  }
+
   navigateMonth = (month) => {
     let date = this.state.selected;
     date.setMonth(month);
@@ -171,15 +204,23 @@ export default class RectDatePicker extends Component {
 
   }
 
+  handleManualDateChange = (e, d) => {
+    this.setState({selectedDateString: d.value})
+  }
+
   render() {
-    const { open, selected, selectedDateString, months } = this.state
+    const { open, selected, selectedDateString, months, ampm } = this.state
     return (
       <div>
-        <Input icon='calendar' iconPosition='left' placeholder='DD/MM/YYYY' onClick={this.open} value={selectedDateString} />
+        <Input icon={<Icon name='calendar' link onClick={this.open} />}
+          style={{width: 230}}
+          placeholder='DD/MM/YYYY HH24:MI:SS'
+          onChange={this.handleManualDateChange}
+          value={selectedDateString} />
         <Modal
           open={open}
           closeIcon={true}
-          onClose={this.close}
+          onClose={()=>this.selectDate(selected)}
           size='small'
         >
           <Modal.Header>
@@ -207,7 +248,7 @@ export default class RectDatePicker extends Component {
               </Grid.Row>
             </Grid>
           </Modal.Header>
-          <Modal.Content>
+          <Modal.Content style={{padding: 7}}>
             <Grid>
               <Grid.Row style={{ padding: 6 }}>
                 <Grid.Column width={2} textAlign='center'>
@@ -217,10 +258,22 @@ export default class RectDatePicker extends Component {
                   }
                   <Icon key="1" name='chevron down' color='blue' style={{ marginBottom: 10 }} onClick={() => this.navigateYearPage(1)} />
                 </Grid.Column>
-                <Grid.Column width={12}>
-                  <Grid columns={7} style={{ padding: 10, borderLeft: '1px solid rgba(179, 179, 179, 0.3)', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
+                <Grid.Column width={10} style={{borderLeft: '1px solid rgba(179, 179, 179, 0.3)', borderRight: '1px solid rgba(179, 179, 179, 0.3)'}}>
+                  <Grid columns={7} style={{ padding: 10,  }}>
                     {this.renderDays()}
                   </Grid>
+                </Grid.Column>
+                <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center' }}>
+                  <div onClick={()=> this.setState({ampm: 'AM'})} 
+                    className={ampm === 'AM' ?styles.selectedAMPM:styles.defaultAMPM}>AM</div>
+                  <div style={{ fontSize: 12, padding: 5 }}>HH</div>
+                  {this.renderHours()}
+                </Grid.Column>
+                <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
+                  <div onClick={()=> this.setState({ampm: 'PM'})} 
+                    className={ampm === 'PM' ?styles.selectedAMPM:styles.defaultAMPM}>PM</div>
+                  <div style={{ fontSize: 12, padding: 5 }}>MM</div>
+                  {this.renderMinutes()}
                 </Grid.Column>
                 <Grid.Column width={2} textAlign='center' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <Header as='h1' style={{ padding: 0, margin: 0 }}>{selected.getDate()}</Header>
