@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, Button, Modal, Grid, Header, Label, Icon } from 'semantic-ui-react'
+import { Button, Modal, Grid, Header, Icon } from 'semantic-ui-react'
 import styles from "./styles.css";
 
 export default class RectDatePicker extends Component {
@@ -8,7 +8,6 @@ export default class RectDatePicker extends Component {
     super(props);
     const today = new Date();
     this.state = {
-      open: false,
       daysInWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       selected: props.selected ? props.selected : today,
       selectedDateString: '',
@@ -24,13 +23,14 @@ export default class RectDatePicker extends Component {
     }
 
   }
-
+  componentWillReceiveProps(nextProps){
+    if(nextProps.selected !== null && nextProps.selected !== this.props.selected){
+      this.setState({selected: nextProps.selected})
+    }
+  }
   componentDidMount() {
     this.updateData();
   }
-
-  open = () => this.setState({ open: true })
-  close = () => this.setState({ open: false })
 
   updateData() {
     const { selected, startYear } = this.state;
@@ -91,20 +91,20 @@ export default class RectDatePicker extends Component {
   }
 
   selectDate = (selectedDate) => {
-    const {ampm, selectedHour, selectedMinutes} = this.state;
-    selectedDate.setHours(ampm==='PM'?selectedHour+12:selectedHour);
+    const { ampm, selectedHour, selectedMinutes } = this.state;
+    selectedDate.setHours(ampm === 'PM' ? selectedHour + 12 : selectedHour);
     selectedDate.setMinutes(selectedMinutes);
     selectedDate.setSeconds(0);
     this.setState({
       selected: selectedDate,
-      selectedDateString: selectedDate.getDate().toString().padStart(2, 0) 
-                          + "/" 
-                          + (selectedDate.getMonth() + 1).toString().padStart(2, 0) 
-                          + "/" + selectedDate.getFullYear()
-                          + " " + selectedDate.getHours().toString().padStart(2, 0) 
-                          + ":" + selectedDate.getMinutes().toString().padStart(2, 0) 
-                          + ":" + selectedDate.getSeconds().toString().padStart(2, 0) 
-    }, () => { this.updateData(); this.close(); this.props.onSelect(selectedDate) });
+      selectedDateString: selectedDate.getDate().toString().padStart(2, 0)
+        + "/"
+        + (selectedDate.getMonth() + 1).toString().padStart(2, 0)
+        + "/" + selectedDate.getFullYear()
+        + " " + selectedDate.getHours().toString().padStart(2, 0)
+        + ":" + selectedDate.getMinutes().toString().padStart(2, 0)
+        + ":" + selectedDate.getSeconds().toString().padStart(2, 0)
+    }, () => { this.updateData(); this.props.onSelect(selectedDate) });
   }
 
   navigateToday = () => {
@@ -204,90 +204,76 @@ export default class RectDatePicker extends Component {
 
   }
 
-  handleManualDateChange = (e, d) => {
-    this.setState({selectedDateString: d.value})
-  }
-
   render() {
-    const { open, selected, selectedDateString, months, ampm } = this.state;
-    const { fluid = false, icon='calendar', iconPosition='right' } = this.props;
+    const { selected, months, ampm } = this.state;
+    const { open } = this.props;
     return (
-      <div>
-        <Input icon={<Icon name={icon} link onClick={this.open} />}
-          iconPosition={iconPosition}
-          style={{minWidth: 230}}
-          placeholder='DD/MM/YYYY HH24:MI:SS'
-          onChange={this.handleManualDateChange}
-          value={selectedDateString}
-          fluid={fluid} />
-        <Modal
-          open={open}
-          closeIcon={true}
-          onClose={()=>this.selectDate(selected)}
-          size='small'
-        >
-          <Modal.Header>
-            <Grid columns={12}>
-              {
-                this.renderMonths()
-              }
-            </Grid>
-          </Modal.Header>
-          <Modal.Header>
-            <Grid>
-              <Grid.Row style={{ padding: 6, alignItems: 'center' }}>
-                <Grid.Column width={2}>
-                </Grid.Column>
-                <Grid.Column width={12}>
-                  <Grid columns={7} style={{ padding: 10 }}>
-                    {
-                      this.renderWeekHeaders()
-                    }
-                  </Grid>
-                </Grid.Column>
-                <Grid.Column width={2}>
-                  <Button basic compact onClick={this.navigateToday}>Today</Button>
-                </Grid.Column>
-              </Grid.Row>
-            </Grid>
-          </Modal.Header>
-          <Modal.Content style={{padding: 7}}>
-            <Grid>
-              <Grid.Row style={{ padding: 6 }}>
-                <Grid.Column width={2} textAlign='center'>
-                  <Icon key="0" name='chevron up' color='blue' style={{ marginBottom: 10 }} onClick={() => this.navigateYearPage(-1)} />
+      <Modal
+        open={open}
+        closeIcon={true}
+        onClose={() => this.selectDate(selected)}
+        size='small'>
+        <Modal.Header>
+          <Grid columns={12}>
+            {
+              this.renderMonths()
+            }
+          </Grid>
+        </Modal.Header>
+        <Modal.Header>
+          <Grid>
+            <Grid.Row style={{ padding: 6, alignItems: 'center' }}>
+              <Grid.Column width={2}>
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <Grid columns={7} style={{ padding: 10 }}>
                   {
-                    this.renderYears()
+                    this.renderWeekHeaders()
                   }
-                  <Icon key="1" name='chevron down' color='blue' style={{ marginBottom: 10 }} onClick={() => this.navigateYearPage(1)} />
-                </Grid.Column>
-                <Grid.Column width={10} style={{borderLeft: '1px solid rgba(179, 179, 179, 0.3)', borderRight: '1px solid rgba(179, 179, 179, 0.3)'}}>
-                  <Grid columns={7} style={{ padding: 10,  }}>
-                    {this.renderDays()}
-                  </Grid>
-                </Grid.Column>
-                <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center' }}>
-                  <div onClick={()=> this.setState({ampm: 'AM'})} 
-                    className={ampm === 'AM' ?styles.selectedAMPM:styles.defaultAMPM}>AM</div>
-                  <div style={{ fontSize: 12, padding: 5 }}>HH</div>
-                  {this.renderHours()}
-                </Grid.Column>
-                <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
-                  <div onClick={()=> this.setState({ampm: 'PM'})} 
-                    className={ampm === 'PM' ?styles.selectedAMPM:styles.defaultAMPM}>PM</div>
-                  <div style={{ fontSize: 12, padding: 5 }}>MM</div>
-                  {this.renderMinutes()}
-                </Grid.Column>
-                <Grid.Column width={2} textAlign='center' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <Header as='h1' style={{ padding: 0, margin: 0 }}>{selected.getDate()}</Header>
-                  <Header as='h3' style={{ padding: 0, margin: 0 }}>{months[selected.getMonth()]}</Header>
-                  <Header as='h4' style={{ padding: 0, margin: 0, color: '#B3B3B3' }}>{selected.getFullYear()}</Header>
-                </Grid.Column>
-              </Grid.Row>
-            </Grid>
-          </Modal.Content>
-        </Modal>
-      </div>
+                </Grid>
+              </Grid.Column>
+              <Grid.Column width={2}>
+                <Button basic compact onClick={this.navigateToday}>Today</Button>
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+        </Modal.Header>
+        <Modal.Content style={{ padding: 7 }}>
+          <Grid>
+            <Grid.Row style={{ padding: 6 }}>
+              <Grid.Column width={2} textAlign='center'>
+                <Icon key="0" name='chevron up' color='blue' style={{ marginBottom: 10 }} onClick={() => this.navigateYearPage(-1)} />
+                {
+                  this.renderYears()
+                }
+                <Icon key="1" name='chevron down' color='blue' style={{ marginBottom: 10 }} onClick={() => this.navigateYearPage(1)} />
+              </Grid.Column>
+              <Grid.Column width={10} style={{ borderLeft: '1px solid rgba(179, 179, 179, 0.3)', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
+                <Grid columns={7} style={{ padding: 10, }}>
+                  {this.renderDays()}
+                </Grid>
+              </Grid.Column>
+              <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center' }}>
+                <div onClick={() => this.setState({ ampm: 'AM' })}
+                  className={ampm === 'AM' ? styles.selectedAMPM : styles.defaultAMPM}>AM</div>
+                <div style={{ fontSize: 12, padding: 5 }}>HH</div>
+                {this.renderHours()}
+              </Grid.Column>
+              <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
+                <div onClick={() => this.setState({ ampm: 'PM' })}
+                  className={ampm === 'PM' ? styles.selectedAMPM : styles.defaultAMPM}>PM</div>
+                <div style={{ fontSize: 12, padding: 5 }}>MM</div>
+                {this.renderMinutes()}
+              </Grid.Column>
+              <Grid.Column width={2} textAlign='center' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Header as='h1' style={{ padding: 0, margin: 0 }}>{selected.getDate()}</Header>
+                <Header as='h3' style={{ padding: 0, margin: 0 }}>{months[selected.getMonth()]}</Header>
+                <Header as='h4' style={{ padding: 0, margin: 0, color: '#B3B3B3' }}>{selected.getFullYear()}</Header>
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+        </Modal.Content>
+      </Modal>
     )
   }
 }
