@@ -209,14 +209,16 @@ export default class RectDatePicker extends Component {
   }
 
   render() {
-    const { open, selected, selectedDateString, months, ampm } = this.state
+    const { open, selected, selectedDateString, months, ampm } = this.state;
+    const { fluid = false } = this.props;
     return (
       <div>
         <Input icon={<Icon name='calendar' link onClick={this.open} />}
-          style={{width: 230}}
+          style={{minWidth: 230}}
           placeholder='DD/MM/YYYY HH24:MI:SS'
           onChange={this.handleManualDateChange}
-          value={selectedDateString} />
+          value={selectedDateString}
+          fluid={fluid} />
         <Modal
           open={open}
           closeIcon={true}
