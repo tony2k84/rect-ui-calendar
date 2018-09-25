@@ -24,8 +24,12 @@ export default class RectDatePicker extends Component {
 
   }
   componentWillReceiveProps(nextProps){
-    if(nextProps.selected !== null && nextProps.selected !== this.props.selected){
-      this.setState({selected: nextProps.selected})
+    if(nextProps.selected && nextProps.selected !== this.props.selected){
+      if(nextProps.selected instanceof Date && !isNaN(nextProps.selected)){
+        this.setState({selected: nextProps.selected})
+      }else{
+        this.setState({selected: new Date()})
+      }
     }
   }
   componentDidMount() {
