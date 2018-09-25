@@ -210,10 +210,11 @@ export default class RectDatePicker extends Component {
 
   render() {
     const { open, selected, selectedDateString, months, ampm } = this.state;
-    const { fluid = false } = this.props;
+    const { fluid = false, icon='calendar', iconPosition='right' } = this.props;
     return (
       <div>
-        <Input icon={<Icon name='calendar' link onClick={this.open} />}
+        <Input icon={<Icon name={icon} link onClick={this.open} />}
+          iconPosition={iconPosition}
           style={{minWidth: 230}}
           placeholder='DD/MM/YYYY HH24:MI:SS'
           onChange={this.handleManualDateChange}

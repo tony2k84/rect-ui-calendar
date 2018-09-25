@@ -11,8 +11,10 @@ export default class App extends Component {
   render () {
     const {selected} = this.state;
     return (
-      <div style={{padding: 30, width: 500, border: '1px solid #444'}}>
+      <div style={{padding: 30, width: 500}}>
         <RectDatePicker 
+          icon='calendar outline'
+          iconPosition='left'
           selected={selected} 
           onSelect={(selected)=>this.setState({selected})}/>
       </div>
