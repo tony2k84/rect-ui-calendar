@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Modal, Grid, Header, Icon } from 'semantic-ui-react'
-import styles from "./styles.css";
+import styles from './styles.css'
 
 export default class RectDatePicker extends Component {
 
@@ -19,16 +19,17 @@ export default class RectDatePicker extends Component {
       minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 59],
       selectedHour: 0,
       selectedMinutes: 0,
-      ampm: 'AM'
+      ampm: 'AM',
+      theme: props.theme ? props.theme:'blue'
     }
 
   }
-  componentWillReceiveProps(nextProps){
-    if(nextProps.selected && nextProps.selected !== this.props.selected){
-      if(nextProps.selected instanceof Date && !isNaN(nextProps.selected)){
-        this.setState({selected: nextProps.selected})
-      }else{
-        this.setState({selected: new Date()})
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.selected && nextProps.selected !== this.props.selected) {
+      if (nextProps.selected instanceof Date && !isNaN(nextProps.selected)) {
+        this.setState({ selected: nextProps.selected })
+      } else {
+        this.setState({ selected: new Date() })
       }
     }
   }
@@ -37,7 +38,7 @@ export default class RectDatePicker extends Component {
   }
 
   updateData() {
-    const { selected, startYear } = this.state;
+    const { selected, startYear } = this.state
 
     // generate days
     var firstDate = new Date(selected.getFullYear(), selected.getMonth(), 1);
@@ -73,9 +74,8 @@ export default class RectDatePicker extends Component {
 
     this.setState({
       days: days,
-      years: years,
+      years: years
     });
-
   }
 
   checkDate = (date1, date2) => {
@@ -102,12 +102,12 @@ export default class RectDatePicker extends Component {
     this.setState({
       selected: selectedDate,
       selectedDateString: selectedDate.getDate().toString().padStart(2, 0)
-        + "/"
+        + '/'
         + (selectedDate.getMonth() + 1).toString().padStart(2, 0)
-        + "/" + selectedDate.getFullYear()
-        + " " + selectedDate.getHours().toString().padStart(2, 0)
-        + ":" + selectedDate.getMinutes().toString().padStart(2, 0)
-        + ":" + selectedDate.getSeconds().toString().padStart(2, 0)
+        + '/' + selectedDate.getFullYear()
+        + ' ' + selectedDate.getHours().toString().padStart(2, 0)
+        + ':' + selectedDate.getMinutes().toString().padStart(2, 0)
+        + ':' + selectedDate.getSeconds().toString().padStart(2, 0)
     }, () => { this.updateData(); this.props.onSelect(selectedDate) });
   }
 
@@ -115,7 +115,7 @@ export default class RectDatePicker extends Component {
     let selectedDate = new Date();
     this.setState({
       selected: selectedDate,
-      selectedDateString: selectedDate.getDate().toString().padStart(2, 0) + "/" + (selectedDate.getMonth() + 1).toString().padStart(2, 0) + "/" + selectedDate.getFullYear()
+      selectedDateString: selectedDate.getDate().toString().padStart(2, 0) + '/' + (selectedDate.getMonth() + 1).toString().padStart(2, 0) + '/' + selectedDate.getFullYear()
     }, () => { this.updateData() });
   }
 
@@ -123,8 +123,17 @@ export default class RectDatePicker extends Component {
     const { months, selected } = this.state;
     let currentMonth = months[selected.getMonth()];
     return months.map((item, index) =>
-      <Grid.Column key={index} textAlign='center' onClick={() => this.navigateMonth(index)} style={{ cursor: 'pointer' }}>
-        <Header as='h5' style={item === currentMonth ? { color: 'blue' } : { color: '#B3B3B3' }}>{item}</Header>
+      <Grid.Column key={index}
+        textAlign='center'
+        onClick={() => this.navigateMonth(index)}
+        style={{ cursor: 'pointer' }}>
+        
+        <Header
+          as='h5'
+          style={item === currentMonth ? { color: this.state.theme } : { color: '#B3B3B3' }}>
+          {item}
+        </Header>
+
       </Grid.Column>
     )
   }
@@ -142,7 +151,10 @@ export default class RectDatePicker extends Component {
     const { years, selected } = this.state;
     return years.map((item) =>
       <div onClick={() => this.navigateYear(item)} key={item}
-        className={selected.getFullYear() === item ? styles.selectedYear : styles.defaultYear}>{item}</div>
+        style={selected.getFullYear() === item ? {color: this.state.theme}: {}}
+        className={selected.getFullYear() === item ? styles.selectedYear : styles.defaultYear}>
+        {item}
+      </div>
     )
   }
 
@@ -154,7 +166,9 @@ export default class RectDatePicker extends Component {
       return (
         <Grid.Column key={index} textAlign='center'
           onClick={() => this.selectDate(item)} style={{ padding: 5 }}>
-          <div className={dateRange == 0 ? styles.selectedDay : dateRange < 2 ? styles.defaultDay : styles.otherDay}>
+          <div
+            style={dateRange === 0 ? {backgroundColor: this.state.theme} : {}}
+            className={dateRange === 0 ? styles.selectedDay : dateRange < 2 ? styles.defaultDay : styles.otherDay}>
             {item ? item.getDate() : ''}
           </div>
         </Grid.Column>
@@ -166,9 +180,14 @@ export default class RectDatePicker extends Component {
   renderHours() {
     const { hours, selectedHour } = this.state;
     return hours.map((item, index) =>
+
       <div key={item}
         onClick={() => this.setState({ selectedHour: item })}
-        className={selectedHour === item ? styles.selectedTime : styles.defaultTime}>{item.toString().padStart(2, '0')}</div>
+        style={selectedHour === item ? { backgroundColor: this.state.theme } : {}}
+        className={selectedHour === item ? styles.selectedTime : styles.defaultTime}>
+        {item.toString().padStart(2, '0')}
+      </div>
+
     )
   }
 
@@ -177,7 +196,10 @@ export default class RectDatePicker extends Component {
     return minutes.map((item, index) =>
       <div key={item}
         onClick={() => this.setState({ selectedMinutes: item })}
-        className={selectedMinutes === item ? styles.selectedTime : styles.defaultTime}>{item.toString().padStart(2, '0')}</div>
+        style={selectedMinutes === item ? { backgroundColor: this.state.theme } : {}}
+        className={selectedMinutes === item ? styles.selectedTime : styles.defaultTime}>
+        {item.toString().padStart(2, '0')}
+      </div>
     )
   }
 
@@ -203,9 +225,8 @@ export default class RectDatePicker extends Component {
     date.setFullYear(newStartYear);
     this.setState({
       selected: date,
-      startYear: newStartYear,
+      startYear: newStartYear
     }, () => this.updateData());
-
   }
 
   render() {
@@ -246,11 +267,17 @@ export default class RectDatePicker extends Component {
           <Grid>
             <Grid.Row style={{ padding: 6 }}>
               <Grid.Column width={2} textAlign='center'>
-                <Icon key="0" name='chevron up' color='blue' style={{ marginBottom: 10 }} onClick={() => this.navigateYearPage(-1)} />
+                <Icon key='0'
+                  style={{marginTop: 10, cursor: 'pointer', color: this.state.theme}}
+                  name='chevron up'
+                  onClick={() => this.navigateYearPage(-1)} />
                 {
                   this.renderYears()
                 }
-                <Icon key="1" name='chevron down' color='blue' style={{ marginBottom: 10 }} onClick={() => this.navigateYearPage(1)} />
+                <Icon key='1'
+                  name='chevron down'
+                  style={{cursor: 'pointer', color: this.state.theme}}
+                  onClick={() => this.navigateYearPage(1)} />
               </Grid.Column>
               <Grid.Column width={10} style={{ borderLeft: '1px solid rgba(179, 179, 179, 0.3)', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
                 <Grid columns={7} style={{ padding: 10, }}>
@@ -258,13 +285,17 @@ export default class RectDatePicker extends Component {
                 </Grid>
               </Grid.Column>
               <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center' }}>
-                <div onClick={() => this.setState({ ampm: 'AM' })}
+                <div
+                  onClick={() => this.setState({ ampm: 'AM' })}
+                  style={ampm === 'AM' ? {borderColor: this.state.theme} : {}}
                   className={ampm === 'AM' ? styles.selectedAMPM : styles.defaultAMPM}>AM</div>
                 <div style={{ fontSize: 12, padding: 5 }}>HH</div>
                 {this.renderHours()}
               </Grid.Column>
               <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
-                <div onClick={() => this.setState({ ampm: 'PM' })}
+                <div
+                  onClick={() => this.setState({ ampm: 'PM' })}
+                  style={ampm === 'PM' ? {borderColor: this.state.theme} : {}}
                   className={ampm === 'PM' ? styles.selectedAMPM : styles.defaultAMPM}>PM</div>
                 <div style={{ fontSize: 12, padding: 5 }}>MM</div>
                 {this.renderMinutes()}

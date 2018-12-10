@@ -12,7 +12,7 @@ export default class App extends Component {
     }
   }
   onSelect = (selected) => {
-    var str = selected.getDate()+"/"+(parseInt(selected.getMonth())+1).toString().padStart(2,0)+"/"+selected.getFullYear();
+    var str = selected.getDate()+"/"+(parseInt(selected.getMonth(), 10)+1).toString().padStart(2,0)+"/"+selected.getFullYear();
     this.setState({open: false, selectedDateString: str});
   }
   handleDateChange = (e, d) => {
@@ -22,7 +22,6 @@ export default class App extends Component {
     const {selectedDateString} = this.state;
     var d = new Date();
     var ds = selectedDateString.split("/");
-    console.log(ds);
     d.setDate(ds[0]);
     d.setMonth(ds[1]-1);
     d.setFullYear(ds[2]);
@@ -40,7 +39,8 @@ export default class App extends Component {
           onChange={this.handleDateChange}
           value={selectedDateString}
           />
-        <RectDatePicker open={open}
+        <RectDatePicker 
+          open={open}
           selected={selected}
           onSelect={this.onSelect}/>
       </div>
