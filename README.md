@@ -27,27 +27,55 @@ npm install --save rect-ui-calendar
 
 ```jsx
 import React, { Component } from 'react'
-import {RectDatePicker} from 'rect-ui-calendar';
+import { RectDatePicker } from 'rect-ui-calendar';
+import { Input, Icon } from 'semantic-ui-react'
 
 export default class App extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
-      selected: '',
+      selected: null,
+      open: false,
+      selectedDateString: '',
     }
   }
-  render () {
-    const {selected} = this.state;
+  onSelect = (selected) => {
+    var str = selected.getDate()+"/"+(parseInt(selected.getMonth(), 10)+1).toString().padStart(2,0)+"/"+selected.getFullYear();
+    this.setState({open: false, selectedDateString: str});
+  }
+  handleDateChange = (e, d) => {
+    this.setState({selectedDateString: d.value})
+  }
+  open = (e) => {
+    const {selectedDateString} = this.state;
+    var d = new Date();
+    var ds = selectedDateString.split("/");
+    d.setDate(ds[0]);
+    d.setMonth(ds[1]-1);
+    d.setFullYear(ds[2]);
+    d.setHours(0, 0, 0);
+    this.setState({selected: d, open: true})
+  }
+  render() {
+    const { selectedDateString, selected, open } = this.state;
     return (
-      <div>
+      <div style={{ padding: 30, width: 500 }}>
+        <Input icon={<Icon name='calendar outline' link onClick={this.open} />}
+          style={{minWidth: 230}}
+          iconPosition='left'
+          placeholder='DD/MM/YYYY'
+          onChange={this.handleDateChange}
+          value={selectedDateString}
+          />
         <RectDatePicker 
-          selected={selected} 
-          startYear={2013}
-          onSelect={(selected)=>this.setState({selected})}/>
+          open={open}
+          selected={selected}
+          onSelect={this.onSelect}/>
       </div>
     )
   }
 }
+
 
 ```
 
