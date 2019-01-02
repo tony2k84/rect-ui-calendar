@@ -13,7 +13,7 @@ export default class RectDatePicker extends Component {
       selectedDateString: '',
       months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       days: [],
-      startYear: props.startYear ? props.startYear : today.getFullYear() - 5,
+      startYear: props.startYear ? props.startYear : today.getFullYear(),
       years: [],
       hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 59],
@@ -64,7 +64,7 @@ export default class RectDatePicker extends Component {
       date.setDate(date.getDate() + 1);
     }
 
-    let start = startYear;
+    let start = selected?selected.getFullYear():startYear;
     let end = start + 9;
     while (start <= end) {
       let _temp = start;
@@ -221,7 +221,7 @@ export default class RectDatePicker extends Component {
 
   navigateYearPage(page) {
     let date = this.state.selected;
-    let newStartYear = date.getFullYear() + (11 * page);
+    let newStartYear = date.getFullYear() + (10 * page);
     date.setFullYear(newStartYear);
     this.setState({
       selected: date,

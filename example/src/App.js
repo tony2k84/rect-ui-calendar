@@ -12,6 +12,7 @@ export default class App extends Component {
     }
   }
   onSelect = (selected) => {
+    console.log(selected);
     var str = selected.getDate()+"/"+(parseInt(selected.getMonth(), 10)+1).toString().padStart(2,0)+"/"+selected.getFullYear();
     this.setState({open: false, selectedDateString: str});
   }
