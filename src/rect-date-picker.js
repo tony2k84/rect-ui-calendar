@@ -96,7 +96,7 @@ export default class RectDatePicker extends Component {
 
   selectDate = (selectedDate) => {
     const { ampm, selectedHour, selectedMinutes } = this.state;
-    selectedDate.setHours(ampm === 'PM' ? selectedHour + 12 : selectedHour);
+    selectedDate.setHours((ampm === 'PM' && selectedHour < 12) ? selectedHour + 12 : selectedHour);
     selectedDate.setMinutes(selectedMinutes);
     selectedDate.setSeconds(0);
     this.setState({
@@ -108,7 +108,10 @@ export default class RectDatePicker extends Component {
         + ' ' + selectedDate.getHours().toString().padStart(2, 0)
         + ':' + selectedDate.getMinutes().toString().padStart(2, 0)
         + ':' + selectedDate.getSeconds().toString().padStart(2, 0)
-    }, () => { this.updateData(); this.props.onSelect(selectedDate) });
+    }, () => { 
+      this.updateData(); 
+      this.props.onSelect(selectedDate) 
+    });
   }
 
   navigateToday = () => {
@@ -141,7 +144,7 @@ export default class RectDatePicker extends Component {
   renderWeekHeaders = () => {
     const { daysInWeek } = this.state;
     return daysInWeek.map((item, index) =>
-      <Grid.Column key={index} textAlign='center' style={{ padding: 5 }}>
+      <Grid.Column key={index} textAlign='center' style={{ padding: 0 }}>
         <Header as='h5' style={{ color: '#B3B3B3' }}>{item}</Header>
       </Grid.Column>
     )
@@ -178,11 +181,11 @@ export default class RectDatePicker extends Component {
   }
 
   renderHours() {
-    const { hours, selectedHour } = this.state;
+    const { hours, ampm, selectedHour } = this.state;
     return hours.map((item, index) =>
 
       <div key={item}
-        onClick={() => this.setState({ selectedHour: item })}
+        onClick={() => this.setState({ ampm: (item === 12)?'PM':(item === 0)?'AM':ampm, selectedHour: item })}
         style={selectedHour === item ? { backgroundColor: this.state.theme } : {}}
         className={selectedHour === item ? styles.selectedTime : styles.defaultTime}>
         {item.toString().padStart(2, '0')}
@@ -250,12 +253,15 @@ export default class RectDatePicker extends Component {
             <Grid.Row style={{ padding: 6, alignItems: 'center' }}>
               <Grid.Column width={2}>
               </Grid.Column>
-              <Grid.Column width={12}>
-                <Grid columns={7} style={{ padding: 10 }}>
+              <Grid.Column width={10}>
+                <Grid columns={7} style={{ paddingTop: 10, paddingBottom: 10 }}>
                   {
                     this.renderWeekHeaders()
                   }
                 </Grid>
+              </Grid.Column>
+              <Grid.Column width={2} textAlign='center'>
+                <Header as='h5'>Time</Header>
               </Grid.Column>
               <Grid.Column width={2}>
                 <Button basic compact onClick={this.navigateToday}>Today</Button>

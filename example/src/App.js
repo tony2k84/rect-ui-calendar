@@ -13,7 +13,12 @@ export default class App extends Component {
   }
   onSelect = (selected) => {
     console.log(selected);
-    var str = selected.getDate()+"/"+(parseInt(selected.getMonth(), 10)+1).toString().padStart(2,0)+"/"+selected.getFullYear();
+    var str = selected.getDate()+"/"+
+              (parseInt(selected.getMonth(), 10)+1).toString().padStart(2,0)+"/"+
+              selected.getFullYear() + " "+
+              selected.getHours().toString().padStart(2,0) + ":"+
+              selected.getMinutes().toString().padStart(2,0) + ":"+
+              selected.getSeconds().toString().padStart(2,0);
     this.setState({open: false, selectedDateString: str});
   }
   handleDateChange = (e, d) => {
