@@ -17,19 +17,25 @@ export default class RectDatePicker extends Component {
       years: [],
       hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 59],
-      selectedHour: 0,
+      selectedHour: props.selected ? props.selected.getHours() : 0,
       selectedMinutes: 0,
       ampm: 'AM',
       theme: props.theme ? props.theme:'blue'
     }
-
   }
   componentWillReceiveProps(nextProps) {
+    console.log('np',nextProps);
     if (nextProps.selected && nextProps.selected !== this.props.selected) {
       if (nextProps.selected instanceof Date && !isNaN(nextProps.selected)) {
-        this.setState({ selected: nextProps.selected })
+        this.setState({ 
+          selected: nextProps.selected,
+          selectedHour: nextProps.selected ? nextProps.selected.getHours() : 0
+        }, ()=>{this.updateData()})
       } else {
-        this.setState({ selected: new Date() })
+        this.setState({ 
+          selected: new Date(),
+          selectedHour: 0,
+        }, ()=>{this.updateData()})
       }
     }
   }
