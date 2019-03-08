@@ -7,6 +7,7 @@ export default class RectDatePicker extends Component {
   constructor(props) {
     super(props);
     const today = new Date();
+
     this.state = {
       daysInWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       selected: props.selected ? props.selected : today,
@@ -17,19 +18,19 @@ export default class RectDatePicker extends Component {
       years: [],
       hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 59],
-      selectedHour: props.selected ? props.selected.getHours() : 0,
+      selectedHour: props.selected ? ((props.selected.getHours() > 12)?props.selected.getHours()-12:props.selected.getHours()) : 0,
       selectedMinutes: 0,
-      ampm: 'AM',
-      theme: props.theme ? props.theme:'blue'
+      ampm: props.selected ? (props.selected.getHours() > 12)?'PM':'AM':'AM',
+      theme: props.theme ? props.theme:'blue',
     }
   }
   componentWillReceiveProps(nextProps) {
-    //console.log('np',nextProps);
     if (nextProps.selected && nextProps.selected !== this.props.selected) {
       if (nextProps.selected instanceof Date && !isNaN(nextProps.selected)) {
         this.setState({ 
           selected: nextProps.selected,
-          selectedHour: nextProps.selected ? nextProps.selected.getHours() : 0
+          selectedHour: nextProps.selected ? ((nextProps.selected.getHours() > 12)?nextProps.selected.getHours()-12:nextProps.selected.getHours()) : 0,
+          ampm: nextProps.selected ? (nextProps.selected.getHours() > 12)?'PM':'AM':'AM',
         }, ()=>{this.updateData()})
       } else {
         this.setState({ 
@@ -100,7 +101,7 @@ export default class RectDatePicker extends Component {
     }
   }
 
-  selectDate = (selectedDate) => {
+  selectDate = (selectedDate, close = false) => {
     const { ampm, selectedHour, selectedMinutes } = this.state;
     selectedDate.setHours((ampm === 'PM' && selectedHour < 12) ? selectedHour + 12 : selectedHour);
     selectedDate.setMinutes(selectedMinutes);
@@ -116,8 +117,16 @@ export default class RectDatePicker extends Component {
         + ':' + selectedDate.getSeconds().toString().padStart(2, 0)
     }, () => { 
       this.updateData(); 
-      this.props.onSelect(selectedDate) 
+      if(close){
+        console.log(selectedDate);
+        this.props.onSelect(selectedDate) 
+      }
     });
+  }
+
+  confirmDate = () => {
+    const {selected} = this.state;
+    this.selectDate(selected, true);
   }
 
   navigateToday = () => {
@@ -174,7 +183,8 @@ export default class RectDatePicker extends Component {
       let dateRange = this.checkDate(item, selected);
       return (
         <Grid.Column key={index} textAlign='center'
-          onClick={() => this.selectDate(item)} style={{ padding: 5 }}>
+          onClick={() => this.selectDate(item)} 
+          style={{ padding: 5 }}>
           <div
             style={dateRange === 0 ? {backgroundColor: this.state.theme} : {}}
             className={dateRange === 0 ? styles.selectedDay : dateRange < 2 ? styles.defaultDay : styles.otherDay}>
@@ -316,6 +326,11 @@ export default class RectDatePicker extends Component {
                 <Header as='h1' style={{ padding: 0, margin: 0 }}>{selected.getDate()}</Header>
                 <Header as='h3' style={{ padding: 0, margin: 0 }}>{months[selected.getMonth()]}</Header>
                 <Header as='h4' style={{ padding: 0, margin: 0, color: '#B3B3B3' }}>{selected.getFullYear()}</Header>
+
+                <Button 
+                  style={{marginTop: 30, color: this.state.theme}} 
+                  onClick={() => this.confirmDate() }
+                  compact icon='check' />
               </Grid.Column>
             </Grid.Row>
           </Grid>
