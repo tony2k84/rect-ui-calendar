@@ -54,13 +54,14 @@ export default class App extends Component {
         <Input icon={<Icon name='calendar outline' link onClick={this.open} />}
           style={{ minWidth: 230 }}
           iconPosition='left'
-          placeholder='DD/MM/YYYY'
+          placeholder='DD/MM/YYYY HH24:MI:SS'
           onChange={this.handleDateChange}
           value={selectedDateString}
         />
         <RectDatePicker
           open={open}
           selected={selected}
+          theme='blue'
           onSelect={this.onSelect} />
       </div>
     )

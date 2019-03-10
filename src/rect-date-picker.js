@@ -1,341 +1,298 @@
-import React, { Component } from 'react'
-import { Button, Modal, Grid, Header, Icon } from 'semantic-ui-react'
-import styles from './styles.css'
+import React, { Component } from 'react';
+import styles from './App.css';
 
-export default class RectDatePicker extends Component {
-
+class App extends Component {
   constructor(props) {
     super(props);
-    const today = new Date();
-
+    let selectedDate = props.selected || new Date();
+    selectedDate.setMinutes(0);
+    selectedDate.setSeconds(0);
     this.state = {
-      daysInWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      selected: props.selected ? props.selected : today,
-      selectedDateString: '',
+      startYear: selectedDate.getFullYear() - 10,
+      years: this._setupYears(selectedDate.getFullYear() - 10),
+      days: this._setupDays(selectedDate.getFullYear(), selectedDate.getMonth()),
       months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      days: [],
-      startYear: props.startYear ? props.startYear : today.getFullYear(),
-      years: [],
+      _months: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
       hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-      minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 59],
-      selectedHour: props.selected ? ((props.selected.getHours() > 12)?props.selected.getHours()-12:props.selected.getHours()) : 0,
-      selectedMinutes: 0,
-      ampm: props.selected ? (props.selected.getHours() > 12)?'PM':'AM':'AM',
-      theme: props.theme ? props.theme:'blue',
+      minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60],
+      selectedDate: selectedDate,
+      ampm: selectedDate.getHours() > 12 ? 'PM' : 'AM'
     }
-  }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selected && nextProps.selected !== this.props.selected) {
-      if (nextProps.selected instanceof Date && !isNaN(nextProps.selected)) {
-        this.setState({ 
-          selected: nextProps.selected,
-          selectedHour: nextProps.selected ? ((nextProps.selected.getHours() > 12)?nextProps.selected.getHours()-12:nextProps.selected.getHours()) : 0,
-          ampm: nextProps.selected ? (nextProps.selected.getHours() > 12)?'PM':'AM':'AM',
-        }, ()=>{this.updateData()})
-      } else {
-        this.setState({ 
-          selected: new Date(),
-          selectedHour: 0,
-        }, ()=>{this.updateData()})
-      }
-    }
-  }
-  componentDidMount() {
-    this.updateData();
+    this.modal = React.createRef();
   }
 
-  updateData() {
-    const { selected, startYear } = this.state
-
-    // generate days
-    var firstDate = new Date(selected.getFullYear(), selected.getMonth(), 1);
-    var lastDate = new Date(selected.getFullYear(), selected.getMonth() + 1, 1);
-    lastDate.setDate(lastDate.getDate() - 1);
-
-    var date = new Date(firstDate);
-    var days = [];
-    let years = [];
-    // pre fill    
-    while (date.getDay() !== 0) {
-      date.setDate(date.getDate() - 1);
-      days.unshift(new Date(date));
-    }
-    date = new Date(firstDate);
-    while (date.getMonth() === selected.getMonth()) {
-      days.push(new Date(date));
-      date.setDate(date.getDate() + 1);
-    }
-
-    while (days.length < 42) {
-      days.push(new Date(date));
-      date.setDate(date.getDate() + 1);
-    }
-
-    let start = selected?selected.getFullYear():startYear;
-    let end = start + 9;
-    while (start <= end) {
-      let _temp = start;
-      years.push(start);
-      start++;
-    }
-
-    this.setState({
-      days: days,
-      years: years
-    });
-  }
-
-  checkDate = (date1, date2) => {
-    if (date1.getFullYear() === date2.getFullYear()) {
-      if (date1.getMonth() === date2.getMonth()) {
-        if (date1.getDate() === date2.getDate()) {
-          return 0;
-        } else {
-          return 1;
-        }
-      } else {
-        return 2;
-      }
-    } else {
-      return 3;
-    }
-  }
-
-  selectDate = (selectedDate, close = false) => {
-    const { ampm, selectedHour, selectedMinutes } = this.state;
-    selectedDate.setHours((ampm === 'PM' && selectedHour < 12) ? selectedHour + 12 : selectedHour);
-    selectedDate.setMinutes(selectedMinutes);
+  componentWillReceiveProps(nextProps){
+    let selectedDate = nextProps.selected || new Date();
+    selectedDate.setMinutes(0);
     selectedDate.setSeconds(0);
     this.setState({
-      selected: selectedDate,
-      selectedDateString: selectedDate.getDate().toString().padStart(2, 0)
-        + '/'
-        + (selectedDate.getMonth() + 1).toString().padStart(2, 0)
-        + '/' + selectedDate.getFullYear()
-        + ' ' + selectedDate.getHours().toString().padStart(2, 0)
-        + ':' + selectedDate.getMinutes().toString().padStart(2, 0)
-        + ':' + selectedDate.getSeconds().toString().padStart(2, 0)
-    }, () => { 
-      this.updateData(); 
-      if(close){
-        console.log(selectedDate);
-        this.props.onSelect(selectedDate) 
-      }
-    });
+      startYear: selectedDate.getFullYear() - 10,
+      years: this._setupYears(selectedDate.getFullYear() - 10),
+      days: this._setupDays(selectedDate.getFullYear(), selectedDate.getMonth()),
+      selectedDate: selectedDate,
+      ampm: selectedDate.getHours() > 12 ? 'PM' : 'AM'
+    })
   }
-
-  confirmDate = () => {
-    const {selected} = this.state;
-    this.selectDate(selected, true);
-  }
-
-  navigateToday = () => {
-    let selectedDate = new Date();
-    this.setState({
-      selected: selectedDate,
-      selectedDateString: selectedDate.getDate().toString().padStart(2, 0) + '/' + (selectedDate.getMonth() + 1).toString().padStart(2, 0) + '/' + selectedDate.getFullYear()
-    }, () => { this.updateData() });
-  }
-
-  renderMonths = () => {
-    const { months, selected } = this.state;
-    let currentMonth = months[selected.getMonth()];
-    return months.map((item, index) =>
-      <Grid.Column key={index}
-        textAlign='center'
-        onClick={() => this.navigateMonth(index)}
-        style={{ cursor: 'pointer' }}>
-        
-        <Header
-          as='h5'
-          style={item === currentMonth ? { color: this.state.theme } : { color: '#B3B3B3' }}>
-          {item}
-        </Header>
-
-      </Grid.Column>
-    )
-  }
-
-  renderWeekHeaders = () => {
-    const { daysInWeek } = this.state;
-    return daysInWeek.map((item, index) =>
-      <Grid.Column key={index} textAlign='center' style={{ padding: 0 }}>
-        <Header as='h5' style={{ color: '#B3B3B3' }}>{item}</Header>
-      </Grid.Column>
-    )
-  }
-
-  renderYears = () => {
-    const { years, selected } = this.state;
-    return years.map((item) =>
-      <div onClick={() => this.navigateYear(item)} key={item}
-        style={selected.getFullYear() === item ? {color: this.state.theme}: {}}
-        className={selected.getFullYear() === item ? styles.selectedYear : styles.defaultYear}>
-        {item}
-      </div>
-    )
-  }
-
-  renderDays = () => {
-    const { days, selected } = this.state;
-    return days.map((item, index) => {
-
-      let dateRange = this.checkDate(item, selected);
-      return (
-        <Grid.Column key={index} textAlign='center'
-          onClick={() => this.selectDate(item)} 
-          style={{ padding: 5 }}>
-          <div
-            style={dateRange === 0 ? {backgroundColor: this.state.theme} : {}}
-            className={dateRange === 0 ? styles.selectedDay : dateRange < 2 ? styles.defaultDay : styles.otherDay}>
-            {item ? item.getDate() : ''}
-          </div>
-        </Grid.Column>
-      )
+  _setupYears = (startYear) => {
+    let years = [];
+    for (var year = startYear; year <= startYear + 10; year++) {
+      years.push(year);
     }
-    )
+    return years;
   }
-
-  renderHours() {
-    const { hours, ampm, selectedHour } = this.state;
-    return hours.map((item, index) =>
-
-      <div key={item}
-        onClick={() => this.setState({ ampm: (item === 12)?'PM':(item === 0)?'AM':ampm, selectedHour: item })}
-        style={selectedHour === item ? { backgroundColor: this.state.theme } : {}}
-        className={selectedHour === item ? styles.selectedTime : styles.defaultTime}>
-        {item.toString().padStart(2, '0')}
-      </div>
-
-    )
-  }
-
-  renderMinutes() {
-    const { minutes, selectedMinutes } = this.state;
-    return minutes.map((item, index) =>
-      <div key={item}
-        onClick={() => this.setState({ selectedMinutes: item })}
-        style={selectedMinutes === item ? { backgroundColor: this.state.theme } : {}}
-        className={selectedMinutes === item ? styles.selectedTime : styles.defaultTime}>
-        {item.toString().padStart(2, '0')}
-      </div>
-    )
-  }
-
-  navigateMonth = (month) => {
-    let date = this.state.selected;
+  _setupDays = (year, month) => {
+    let days = [];
+    let date = new Date();
     date.setMonth(month);
-    this.setState({
-      selected: date
-    }, () => this.updateData());
-  }
+    date.setYear(year);
+    date.setHours(0, 0, 0);
+    let day = 1;
+    date.setDate(day);
 
-  navigateYear = (year) => {
-    let date = this.state.selected;
-    date.setFullYear(year);
-    this.setState({
-      selected: date
-    }, () => this.updateData());
+    // buffer days based on weekday
+    for (var wd = 0; wd < date.getDay(); wd++) {
+      // push blank date
+      days.push(null);
+    }
+    while (date.getMonth() === month) {
+      days.push(new Date(date));
+      day++;
+      date.setDate(day);
+    }
+    return days;
   }
-
-  navigateYearPage(page) {
-    let date = this.state.selected;
-    let newStartYear = date.getFullYear() + (10 * page);
-    date.setFullYear(newStartYear);
-    this.setState({
-      selected: date,
-      startYear: newStartYear
-    }, () => this.updateData());
-  }
-
-  render() {
-    const { selected, months, ampm } = this.state;
-    const { open } = this.props;
+  renderMonth = (month) => {
+    const { selectedDate, months } = this.state;
+    const isCurrent = (month === selectedDate.getMonth());
     return (
-      <Modal
-        open={open}
-        closeIcon={true}
-        onClose={() => this.selectDate(selected)}
-        size='small'>
-        <Modal.Header>
-          <Grid columns={12}>
-            {
-              this.renderMonths()
-            }
-          </Grid>
-        </Modal.Header>
-        <Modal.Header>
-          <Grid>
-            <Grid.Row style={{ padding: 6, alignItems: 'center' }}>
-              <Grid.Column width={2}>
-              </Grid.Column>
-              <Grid.Column width={10}>
-                <Grid columns={7} style={{ paddingTop: 10, paddingBottom: 10 }}>
-                  {
-                    this.renderWeekHeaders()
-                  }
-                </Grid>
-              </Grid.Column>
-              <Grid.Column width={2} textAlign='center'>
-                <Header as='h5'>Time</Header>
-              </Grid.Column>
-              <Grid.Column width={2}>
-                <Button basic compact onClick={this.navigateToday}>Today</Button>
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Modal.Header>
-        <Modal.Content style={{ padding: 7 }}>
-          <Grid>
-            <Grid.Row style={{ padding: 6 }}>
-              <Grid.Column width={2} textAlign='center'>
-                <Icon key='0'
-                  style={{marginTop: 10, cursor: 'pointer', color: this.state.theme}}
-                  name='chevron up'
-                  onClick={() => this.navigateYearPage(-1)} />
-                {
-                  this.renderYears()
-                }
-                <Icon key='1'
-                  name='chevron down'
-                  style={{cursor: 'pointer', color: this.state.theme}}
-                  onClick={() => this.navigateYearPage(1)} />
-              </Grid.Column>
-              <Grid.Column width={10} style={{ borderLeft: '1px solid rgba(179, 179, 179, 0.3)', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
-                <Grid columns={7} style={{ padding: 10, }}>
-                  {this.renderDays()}
-                </Grid>
-              </Grid.Column>
-              <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center' }}>
-                <div
-                  onClick={() => this.setState({ ampm: 'AM' })}
-                  style={ampm === 'AM' ? {borderColor: this.state.theme} : {}}
-                  className={ampm === 'AM' ? styles.selectedAMPM : styles.defaultAMPM}>AM</div>
-                <div style={{ fontSize: 12, padding: 5 }}>HH</div>
-                {this.renderHours()}
-              </Grid.Column>
-              <Grid.Column width={1} style={{ padding: 0, paddingBottom: 5, paddingTop: 5, textAlign: 'center', borderRight: '1px solid rgba(179, 179, 179, 0.3)' }}>
-                <div
-                  onClick={() => this.setState({ ampm: 'PM' })}
-                  style={ampm === 'PM' ? {borderColor: this.state.theme} : {}}
-                  className={ampm === 'PM' ? styles.selectedAMPM : styles.defaultAMPM}>PM</div>
-                <div style={{ fontSize: 12, padding: 5 }}>MM</div>
-                {this.renderMinutes()}
-              </Grid.Column>
-              <Grid.Column width={2} textAlign='center' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <Header as='h1' style={{ padding: 0, margin: 0 }}>{selected.getDate()}</Header>
-                <Header as='h3' style={{ padding: 0, margin: 0 }}>{months[selected.getMonth()]}</Header>
-                <Header as='h4' style={{ padding: 0, margin: 0, color: '#B3B3B3' }}>{selected.getFullYear()}</Header>
-
-                <Button 
-                  style={{marginTop: 30, color: this.state.theme}} 
-                  onClick={() => this.confirmDate() }
-                  compact icon='check' />
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Modal.Content>
-      </Modal>
+      <div key={month}
+        onClick={() => this.setMonth(month)}
+        style={isCurrent ? { backgroundColor: this.props.theme || 'grey' } : null}
+        className={[styles.month, isCurrent ? styles.selected : null].join(' ')}>
+        {months[month]}
+      </div>
     )
+  }
+  renderDay = (day, index) => {
+    if (!day) {
+      return <div key={index}></div>;
+    }
+    const { selectedDate } = this.state;
+    const isCurrent = (day.getDate() === selectedDate.getDate());
+    return (
+      <div key={index}
+        onClick={() => this.setDate(day.getDate())}
+        style={isCurrent ? { backgroundColor: this.props.theme || 'grey' } : null}
+        className={[styles.day, isCurrent ? styles.selected : null].join(' ')}>
+        {day.getDate()}
+      </div>
+    )
+  }
+  renderYear = (year) => {
+    const { selectedDate } = this.state;
+    const isCurrent = (selectedDate.getFullYear() === year);
+    return (
+      <div key={year}
+        onClick={() => this.setYear(year)}
+        style={isCurrent ? { backgroundColor: this.props.theme || 'grey' } : null}
+        className={[styles.value, isCurrent ? styles.selected : null].join(' ')}>
+        {year}
+      </div>
+    )
+  }
+  renderHour = (hour) => {
+    const { selectedDate } = this.state;
+    let selectedHours12Format = selectedDate.getHours();
+    if (selectedHours12Format > 12) {
+      selectedHours12Format = selectedHours12Format - 12;
+    }
+    const isCurrent = (selectedHours12Format === hour);
+    return (
+      <div key={hour}
+        onClick={() => this.setHours(hour)}
+        style={isCurrent ? { backgroundColor: this.props.theme || 'grey' } : null}
+        className={[styles.value, isCurrent ? styles.selected : null].join(' ')}>
+        {hour.toString().padStart(2, 0)}
+      </div>
+    )
+  }
+  renderMinute = (minute) => {
+    const { selectedDate } = this.state;
+    const isCurrent = (selectedDate.getMinutes() === minute);
+    return (
+      <div key={minute}
+        onClick={() => this.setMinutes(minute)}
+        style={isCurrent ? { backgroundColor: this.props.theme || 'grey' } : null}
+        className={[styles.value, isCurrent ? styles.selected : null].join(' ')}>
+        {minute.toString().padStart(2, 0)}
+      </div>
+    )
+  }
+
+  // click handler - toggle am pm
+  toggleAMPM = (e) => {
+    const { selectedDate, ampm } = this.state;
+    if (ampm === 'AM') {
+      selectedDate.setHours(selectedDate.getHours() + 12);
+      this.setState({ ampm: 'PM', selectedDate })
+    } else {
+      selectedDate.setHours(selectedDate.getHours() - 12);
+      this.setState({ ampm: 'AM', selectedDate })
+    }
+  }
+  // set minutes
+  setMinutes = (minute) => {
+    let { selectedDate } = this.state;
+    selectedDate.setMinutes(minute);
+    this.setState({ selectedDate })
+  }
+  // set hours
+  setHours = (hour) => {
+    let { selectedDate, ampm } = this.state;
+    if (hour === 12) {
+      selectedDate.setHours(hour);
+      if (ampm === 'AM') {
+        ampm = 'PM';
+      }
+    } else {
+      selectedDate.setHours(ampm === 'PM' ? (hour + 12) : hour);
+    }
+    this.setState({ selectedDate, ampm })
+  }
+  // set date
+  setDate = (date) => {
+    let { selectedDate } = this.state;
+    selectedDate.setDate(date);
+    this.setState({ selectedDate })
+  }
+  daysInMonth = (m, y) => { // m is 0 indexed: 0-11
+    switch (m) {
+        case 1 :
+            return (y % 4 == 0 && y % 100) || y % 400 == 0 ? 29 : 28;
+        case 8 : case 3 : case 5 : case 10 :
+            return 30;
+        default :
+            return 31
+    }
+  }
+  // set month
+  setMonth = (month) => {
+    let { selectedDate } = this.state;
+    if(selectedDate.getDate() > this.daysInMonth(month, selectedDate.getFullYear())){
+      selectedDate.setDate(1);
+    }
+    selectedDate.setMonth(month);
+    this.setState({ selectedDate, days:  this._setupDays(selectedDate.getFullYear(), month)});
+  }
+  // set year
+  setYear = (year) => {
+    let { selectedDate } = this.state;
+    if(selectedDate.getDate() > this.daysInMonth(selectedDate.getMonth(), year)){
+      selectedDate.setDate(1);
+    }
+    selectedDate.setYear(year);
+    this.setState({ selectedDate, days:  this._setupDays(year, selectedDate.getMonth()) })
+  }
+  // navigate year page
+  navigateYearPage = (page) => {
+    let { startYear } = this.state;
+    // increment/decrement now
+    startYear = startYear + (page * 10);
+    this.setState({ startYear, years: this._setupYears(startYear) })
+  }
+  formatDate = () => {
+    const { selectedDate, months } = this.state;
+
+    return months[selectedDate.getMonth()] + " " +
+      selectedDate.getDate().toString().padStart(2,0) + ", " +
+      selectedDate.getFullYear() + " " +
+      selectedDate.getHours().toString().padStart(2, 0) + ":" +
+      selectedDate.getMinutes().toString().padStart(2, 0);
+  }
+  today = (e) => {
+    let d = new Date()
+    d.setMinutes(0);
+    d.setSeconds(0);
+    this.setState({ 
+      selectedDate: d,
+      years: this._setupYears(d.getFullYear()-10),
+      days: this._setupDays(d.getFullYear(), d.getMonth()),
+      ampm: d.getHours() > 12 ? 'PM' : 'AM'
+    })
+  }
+  closeModal = (e) => {
+    this.modal.current.style.display = 'none';
+    if (this.props.onSelect) {
+      this.props.onSelect(this.state.selectedDate);
+    }
+  }
+  render() {
+    const { years, hours, minutes, days, ampm, _months } = this.state;
+    return (
+      <div ref={this.modal}
+        style={{ display: this.props.open ? 'block' : 'none' }}
+        className={styles.modalWrapper}>
+        <div className={styles.wrapper}>
+          <div className={[styles.grid, styles.months].join(' ')}>
+            {
+              _months.map(month => this.renderMonth(month))
+            }
+          </div>
+          <div className={styles.grid}>
+            <div className={styles.weekdays}>
+              <div>Sun</div>
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
+            </div>
+            <div className={styles.hours}>
+              <div
+                style={{ backgroundColor: this.props.theme || 'grey' }}
+                className={styles.ampm} onClick={this.toggleAMPM}>{ampm}</div>
+            </div>
+          </div>
+          <div className={styles.grid}>
+            <div id="years" className={styles.select}>
+              <div style={{marginBottom: 10}} className={styles.link} onClick={() => this.navigateYearPage(-1)}>Back</div>
+              {
+                years.map(year => this.renderYear(year))
+              }
+              <div style={{marginTop: 10}} className={styles.link} onClick={() => this.navigateYearPage(1)}>Next</div>
+            </div>
+            <div id="days" className={styles.days}>
+              {
+                days.map((day,index) => this.renderDay(day, index))
+              }
+            </div>
+            <div id="hours" className={styles.select}>
+              {
+                hours.map(hour => this.renderHour(hour))
+              }
+            </div>
+            <div id="minutes" className={styles.select}>
+              {
+                minutes.map(minute => this.renderMinute(minute))
+              }
+            </div>
+          </div>
+          <div style={{ display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', textAlign: 'center' }}>
+            <div className={styles.date}>{this.formatDate()}</div>
+            <div className={styles.button}
+              style={{ backgroundColor: this.props.theme || 'grey' }}
+              onClick={this.closeModal}>Done</div>
+            <div className={styles.secondary}
+              style={{ borderColor: this.props.theme || 'grey' }}
+              onClick={this.today}>Today</div>
+          </div>
+        </div>
+      </div>
+    );
   }
 }
+
+export default App;
